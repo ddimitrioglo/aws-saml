@@ -1,0 +1,15 @@
+{
+  "name": "aws-saml",
+  "version": "0.0.1",
+  "description": "AWS SAML login",
+  "bin": {
+    "login": "./bin/login.js"
+  },
+  "author": "ddimitrioglo",
+  "license": "MIT",
+  "dependencies": {
+    "aws-sdk": "^2.211.1",
+    "request": "^2.85.0",
+    "sax": "^1.2.4"
+  }
+}
