@@ -41,4 +41,4 @@ This repository can be used under the MIT license.
 
 [1]: https://aws.amazon.com/ru/blogs/security/how-to-implement-a-general-solution-for-federated-apicli-access-using-saml-2-0
 [2]: https://docs.aws.amazon.com/cli/latest/userguide/cli-chap-getting-started.html
-[3]: https://github.com/ddimitrioglo/web-boost/blob/master/LICENSE
+[3]: https://github.com/ddimitrioglo/aws-saml/blob/master/LICENSE
