@@ -7,6 +7,7 @@ Node.js CLI package which allows you to get AWS temporary credentials using a SA
 
 - Node.js v4+
 - AWS Command Line Interface (CLI) [configured][2]
+- AWS SAML Provider configured
 
 ### Installation
 
