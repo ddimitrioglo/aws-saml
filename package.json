@@ -1,6 +1,6 @@
 {
   "name": "aws-saml",
-  "version": "0.0.4",
+  "version": "0.0.5",
   "description": "AWS SAML login",
   "keywords": [ "aws", "saml", "adfs" ],
   "bin": {
@@ -13,5 +13,13 @@
     "aws-sdk": "^2.211.1",
     "request": "^2.85.0",
     "sax": "^1.2.4"
+  },
+  "homepage": "https://github.com/ddimitrioglo/aws-saml#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ddimitrioglo/aws-saml.git"
+  },
+  "bugs": {
+    "url": "https://github.com/ddimitrioglo/aws-saml/issues"
   }
 }
