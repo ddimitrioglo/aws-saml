@@ -24,9 +24,9 @@ Inspired by [AWS CLI Access Using SAML 2.0][1] article.
 * Run `aws-saml login`
 * Enter a password
 * Chose an account
-* Use your AWS CLI commands by adding `--profil saml`
+* Use your AWS CLI commands by adding `--profile saml`
 
-> Ex. `aws s3 ls --profil saml`
+> Ex. `aws s3 ls --profile saml`
 
 ### Improvements
 
