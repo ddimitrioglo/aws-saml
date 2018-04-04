@@ -87,7 +87,7 @@ function askPassword() {
  */
 function chooseAccount(accounts) {
   const accountsList = accounts.map((account, index) => {
-    return `[ ${index} ] ${account.AccountAlias}`;
+    return `[ ${index} ] ${account.Arn} (${account.AccountAlias})`;
   });
 
   console.log(accountsList.join('\n'));
@@ -153,7 +153,7 @@ function assumeRole(roleArn, principalArn, samlResponse) {
     .promise()
     .then(data => {
       return Promise.resolve(
-        Object.assign({ AccountAlias: getAlias(roleArn) }, data.Credentials)
+        Object.assign({ Arn: roleArn, AccountAlias: getAlias(roleArn) }, data.Credentials)
       );
     })
     .catch(() => Promise.resolve(false))

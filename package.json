@@ -1,10 +1,11 @@
 {
   "name": "aws-saml",
-  "version": "0.0.5",
+  "version": "0.0.6",
   "description": "AWS SAML login",
   "keywords": [ "aws", "saml", "adfs" ],
   "bin": {
-    "login": "./bin/login.js"
+    "aws-saml": "./index.js",
+    "aws-saml-login": "./bin/login.js"
   },
   "author": "ddimitrioglo",
   "license": "MIT",
