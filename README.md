@@ -16,7 +16,7 @@ Inspired by [AWS CLI Access Using SAML 2.0][1] article.
 
 ### Configuration
 
-* Generate `~/.aws-saml.json` by running `aws-saml login` (first time only)
+* Generate `~/.aws-saml.json` by running `aws-saml login`* (first time only)
 * Adjust your `~/.aws-saml.json`
 
 ### Usage
@@ -32,7 +32,7 @@ Inspired by [AWS CLI Access Using SAML 2.0][1] article.
 
 ### @todo
 
-- [ ] Point aws-saml to index.js
+- [ ] Point `aws-saml login` to index.js
 - [ ] Rewrite login command as a class or module
 - [ ] Add configure command
 
