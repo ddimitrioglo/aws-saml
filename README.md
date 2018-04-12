@@ -16,25 +16,22 @@ Inspired by [AWS CLI Access Using SAML 2.0][1] article.
 
 ### Configuration
 
-* Generate `~/.aws-saml.json` by running `aws-saml login`* (first time only)
-* Adjust your `~/.aws-saml.json`
+`aws-saml configure`
+
+> Or manually edit `~/.aws/.saml.json`
 
 ### Usage
 
-* Run `aws-saml login`*
+* Run `aws-saml login`
 * Enter a password
 * Chose an account
 * Use your AWS CLI commands by adding `--profile saml`
 
 > Ex. `aws s3 ls --profile saml`
 
-> `*` For the time being please use `aws-saml-login` instead of `aws-saml login`
+### Help
 
-### @todo
-
-- [ ] Point `aws-saml login` to index.js
-- [ ] Rewrite login command as a class or module
-- [ ] Add configure command
+`aws-saml --help`
 
 ### Improvements
 

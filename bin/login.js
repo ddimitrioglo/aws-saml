@@ -1,79 +1,72 @@
-#!/usr/bin/env node
-
 'use strict';
 
-const fs = require('fs');
-const os = require('os');
 const url = require('url');
 const sax = require('sax');
 const AWS = require('aws-sdk');
-const path = require('path');
-const rle = require('../lib/extra-readline');
 const Saml = require('../lib/saml');
+const rlex = require('../lib/extra-readline');
 const CredentialsParser = require('../lib/credentials-parser');
 
-const cfgName = '.aws-saml.json';
-const cfgExample = path.join(__dirname, '../.aws-saml.json');
-const cfgPath = path.join(os.homedir(), cfgName);
+/**
+ * Login action
+ * @param {Object} config
+ */
+function login(config) {
+  const { directoryDomain, username, profile, accountMapping } = require(config.path);
+  const idpEntryUrl = url.resolve(directoryDomain, 'adfs/ls/IdpInitiatedSignOn.aspx?loginToRp=urn:amazon:webservices');
+  const saml = new Saml(idpEntryUrl);
+  const parser = new CredentialsParser();
 
-if (!fs.existsSync(cfgPath)) {
-  fs.writeFileSync(cfgPath, fs.readFileSync(cfgExample), 'utf8');
-  console.log(`Please configure aws-saml (vim ${cfgPath})`);
-  process.exit(0);
+  let samlRawResponse = '';
+
+  Promise.all([
+    askPassword(username),
+    saml.getLoginPath()
+  ]).then(([password, loginPath]) => {
+
+    return saml.getSamlResponse(loginPath, username, password);
+  }).then(samlResponse => {
+    samlRawResponse = samlResponse;
+
+    return parseRoles(Saml.parseSamlResponse(samlRawResponse));
+  }).then(roles => {
+
+    return Promise.all(roles.map(role => {
+      return assumeRole(role.roleArn, role.principalArn, samlRawResponse);
+    })).then(results => {
+      return results.filter(Boolean);
+    });
+  }).then(availableAccounts => {
+
+    return chooseAccount(availableAccounts, accountMapping);
+  }).then(chosenAccount => {
+
+    parser.updateProfile(profile, {
+      aws_access_key_id: chosenAccount.AccessKeyId,
+      aws_secret_access_key: chosenAccount.SecretAccessKey,
+      aws_session_token: chosenAccount.SessionToken
+    }).persist();
+
+    console.log('Done!');
+    process.exit(0);
+  }).catch(err => {
+    console.error(`Failed with error: ${err.message.trim()}`);
+    process.exit(1);
+  });
 }
 
-const { directoryDomain, username, profile, accountMapping } = require(cfgPath);
-const idpEntryUrl = url.resolve(directoryDomain, 'adfs/ls/IdpInitiatedSignOn.aspx?loginToRp=urn:amazon:webservices');
-const saml = new Saml(idpEntryUrl);
-const parser = new CredentialsParser();
-
-let samlRawResponse = '';
-
-Promise.all([
-  askPassword(),
-  saml.getLoginPath()
-]).then(([password, loginPath]) => {
-
-  return saml.getSamlResponse(loginPath, username, password);
-}).then(samlResponse => {
-  samlRawResponse = samlResponse;
-
-  return parseRoles(Saml.parseSamlResponse(samlRawResponse));
-}).then(roles => {
-
-  return Promise.all(roles.map(role => {
-    return assumeRole(role.roleArn, role.principalArn, samlRawResponse);
-  })).then(results => {
-    return results.filter(Boolean);
-  });
-}).then(availableAccounts => {
-
-  return chooseAccount(availableAccounts);
-}).then(chosenAccount => {
-
-  parser.updateProfile(profile, {
-    aws_access_key_id: chosenAccount.AccessKeyId,
-    aws_secret_access_key: chosenAccount.SecretAccessKey,
-    aws_session_token: chosenAccount.SessionToken
-  }).persist();
-
-  console.log('Done!');
-  process.exit(0);
-}).catch(err => {
-  console.error(`Failed with error: ${err.message.trim()}`);
-  process.exit(1);
-});
+module.exports = login;
 
 /**
  * Ask a password
  * @returns {Promise}
  */
-function askPassword() {
+function askPassword(username) {
   console.log(`Please enter password for [ ${username} ]:`);
 
   return new Promise(resolve => {
-    rle.password(password => {
-      rle.pause();
+    rlex.password(password => {
+      rlex.pause();
 
       return resolve(password);
     });
@@ -83,19 +76,22 @@ function askPassword() {
 /**
  * Choose AWS account to login
  * @param {Array} accounts
+ * @param {Object} mapping
  * @returns {Promise}
  */
-function chooseAccount(accounts) {
+function chooseAccount(accounts, mapping) {
   const accountsList = accounts.map((account, index) => {
-    return `[ ${index} ] ${account.Arn} (${account.AccountAlias})`;
+    let [, accountId] = account.Arn.match(/(\d+):role/);
+
+    return `[ ${index} ] ${account.Arn} (${mapping[accountId] || accountId})`;
   });
 
   console.log(accountsList.join('\n'));
 
   return new Promise(resolve => {
-    rle.resume();
-    rle.question('Choose account to login: ', index => {
-      rle.close();
+    rlex.resume();
+    rlex.question('Choose account to login: ', index => {
+      rlex.close();
 
       return resolve(accounts[index]);
     });
@@ -127,17 +123,6 @@ function parseRoles(xmlString) {
 }
 
 /**
- * Get AWS account alias from ARN
- * @param {String} roleString
- * @returns {String}
- */
-function getAlias(roleString) {
-  const accountId = roleString.substr(roleString.search(/[0-9]+/i), 12);
-
-  return accountMapping[accountId] || accountId;
-}
-
-/**
  * Assume role (resolve false on fail)
  * @param {String} roleArn
  * @param {String} principalArn
@@ -153,9 +138,8 @@ function assumeRole(roleArn, principalArn, samlResponse) {
     .promise()
     .then(data => {
       return Promise.resolve(
-        Object.assign({ Arn: roleArn, AccountAlias: getAlias(roleArn) }, data.Credentials)
+        Object.assign({ Arn: roleArn }, data.Credentials)
       );
     })
-    .catch(() => Promise.resolve(false))
-  ;
+    .catch(() => Promise.resolve(false));
 }

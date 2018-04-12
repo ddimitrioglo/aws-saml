@@ -1,17 +1,21 @@
 {
   "name": "aws-saml",
-  "version": "0.0.6",
+  "version": "0.0.7",
   "description": "AWS SAML login",
-  "keywords": [ "aws", "saml", "adfs" ],
+  "keywords": [
+    "aws",
+    "saml",
+    "adfs"
+  ],
   "bin": {
-    "aws-saml": "./index.js",
-    "aws-saml-login": "./bin/login.js"
+    "aws-saml": "./bin/cli.js"
   },
   "author": "ddimitrioglo",
   "license": "MIT",
   "preferGlobal": true,
   "dependencies": {
     "aws-sdk": "^2.211.1",
+    "commander": "^2.15.1",
     "request": "^2.85.0",
     "sax": "^1.2.4"
   },
