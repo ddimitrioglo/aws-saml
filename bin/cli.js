@@ -13,7 +13,7 @@ const { version } = require('../package');
 function Config() {
   this.name = '.saml.json';
   this.path = path.join(os.homedir(), '.aws', this.name);
-  this.template = path.join(__dirname, '../', this.name);
+  this.template = path.join(__dirname, '..', this.name);
 
   return {
     name: this.name,
@@ -24,7 +24,9 @@ function Config() {
 
 const cfg = new Config();
 
-cli.version(version, '-v, --version');
+cli
+  .version(version, '-v, --version')
+  .usage('aws-saml [action]');
 
 cli
   .command('configure')
@@ -44,5 +46,9 @@ cli
 
     login(cfg);
   });
+
+if (process.argv.length === 2) {
+  cli.help();
+}
 
 cli.parse(process.argv);

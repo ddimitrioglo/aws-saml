@@ -20,11 +20,11 @@ function login(config) {
   let samlRawResponse = '';
 
   Promise.all([
-    askPassword(username),
+    askCredentials(username),
     saml.getLoginPath()
-  ]).then(([password, loginPath]) => {
+  ]).then(([credentials, loginPath]) => {
 
-    return saml.getSamlResponse(loginPath, username, password);
+    return saml.getSamlResponse(loginPath, credentials.username, credentials.password);
   }).then(samlResponse => {
     samlRawResponse = samlResponse;
 
@@ -58,17 +58,18 @@ function login(config) {
 module.exports = login;
 
 /**
- * Ask a password
+ * Ask user's credentials
  * @returns {Promise}
  */
-function askPassword(username) {
-  console.log(`Please enter password for [ ${username} ]:`);
-
+function askCredentials(username) {
   return new Promise(resolve => {
-    rlex.password(password => {
-      rlex.pause();
+    rlex.resume();
+    rlex.question(`Username (${username}): `, login => {
+      rlex.secretQuestion('Password: ', password => {
+        rlex.pause();
 
-      return resolve(password);
+        resolve({ username: login || username, password: password });
+      })
     });
   });
 }
