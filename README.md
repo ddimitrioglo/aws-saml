@@ -20,7 +20,7 @@ Inspired by [AWS CLI Access Using SAML 2.0][1] article.
 
 > Or manually edit `~/.aws/.saml.json` which will look like
 
-```json
+```text
 {
   "profile": "saml",
   "username": "myusername", // or email: myusername@mycorp.com
