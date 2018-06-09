@@ -18,7 +18,19 @@ Inspired by [AWS CLI Access Using SAML 2.0][1] article.
 
 `aws-saml configure`
 
-> Or manually edit `~/.aws/.saml.json`
+> Or manually edit `~/.aws/.saml.json` which will look like
+
+```json
+{
+  "profile": "saml",
+  "username": "myusername", // or email: myusername@mycorp.com
+  "directoryDomain": "https://directory.mycorp.com",
+  "accountMapping": {
+    "888999888999": "Account A",
+    ...
+  }
+}
+```
 
 ### Usage
 
