@@ -3,52 +3,44 @@
 'use strict';
 
 const fs = require('fs');
-const os = require('os');
-const cli = require('commander');
 const path = require('path');
-const login = require('./login');
-const configure = require('./configure');
+const parseArgs = require('minimist');
 const { version } = require('../package');
 
-function Config() {
-  this.name = '.saml.json';
-  this.path = path.join(os.homedir(), '.aws', this.name);
-  this.template = path.join(__dirname, '..', this.name);
+const command = create();
 
-  return {
-    name: this.name,
-    path: this.path,
-    template: this.template
-  };
-}
-
-const cfg = new Config();
-
-cli
-  .version(version, '-v, --version')
-  .usage('aws-saml [action]');
-
-cli
-  .command('configure')
-  .description('configure ~/.aws/.saml.json')
-  .action(() => {
-    configure(cfg);
-  });
-
-cli
-  .command('login')
-  .description('login with SAML credentials')
-  .action(() => {
-    if (!fs.existsSync(cfg.path)) {
-      console.log('Please configure ~/.aws/.saml.json first');
-      process.exit(1);
+command
+  .validate()
+  .then(() => command.run())
+  .then(message => {
+    if (message) {
+      console.info('✅', message);
     }
-
-    login(cfg);
+    process.exit(0);
+  })
+  .catch(err => {
+    console.error('❌', err.message || err || 'Error occurred');
+    process.exit(1);
   });
 
-if (process.argv.length === 2) {
-  cli.help();
-}
+/**
+ * Command factory
+ * @returns {Object}
+ */
+function create() {
+  const args = parseArgs(process.argv.slice(2));
+  const command = args._.shift();
 
-cli.parse(process.argv);
+  try {
+    const Command = require(path.join(__dirname, '../cmd', command));
+    delete args._;
+
+    return new Command(args);
+  } catch (e) {
+    const help = fs.readFileSync(path.join(__dirname, '../help.txt'), 'utf8');
+    const output = args.hasOwnProperty('v') || args.hasOwnProperty('version') ? version : help;
+
+    console.log(output);
+    process.exit(0);
+  }
+}

@@ -1,0 +1,11 @@
+Usage: aws-saml [command] [options]
+
+Commands:
+  alias --account <account> [--delete]      Manage AWS account's aliases
+  configure                                 Configure aws-saml config
+  login [--alias <alias>]                   SSO login (interactive or auto-login)
+  password [--delete]                       Manage SSO password
+
+Options:
+  -v, --version         Print aws-saml version
+  -h, --help            Print help

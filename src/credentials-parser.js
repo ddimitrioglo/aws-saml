@@ -4,6 +4,12 @@ const os = require('os');
 const fs = require('fs');
 const path = require('path');
 
+/**
+ * @info:
+ *  AWS_CREDENTIAL_PROFILES_FILE environment variable to the location of your AWS credentials file
+ *  AWS_SHARED_CREDENTIALS_FILE – Change the location of the file that the AWS CLI uses to store access keys
+ *  AWS_CONFIG_FILE – Change the location of the file that the AWS CLI uses to store configuration profiles
+ */
 class CredentialsParser {
   /**
    * Constructor
@@ -11,11 +17,6 @@ class CredentialsParser {
   constructor() {
     this._path = process.env.AWS_CREDENTIAL_PROFILES_FILE || path.join(os.homedir(), '.aws', 'credentials');
     this._profiles = this._parse();
-
-    // @todo investigate different use cases
-    // AWS_SHARED_CREDENTIALS_FILE – Change the location of the file that the AWS CLI uses to store access keys.
-    // AWS_CONFIG_FILE – Change the location of the file that the AWS CLI uses to store configuration profiles.
-    // AWS_CREDENTIAL_PROFILES_FILE environment variable to the location of your AWS credentials file.
   }
 
   /**
@@ -35,8 +36,8 @@ class CredentialsParser {
         profile = found[1];
         result[profile] = {};
       } else {
-        let [property, value] = line.split(/=[^$]/).map(x => x.trim());
-        result[profile][property] = value;
+        let [property, ...value] = line.split('=').map(x => x.trim());
+        result[profile][property] = value.join('=');
       }
     });
 
@@ -61,7 +62,7 @@ class CredentialsParser {
   getProfile(name) {
     let result = [`[${name}]`];
     let profile = this._profiles[name];
-    
+
     Object.keys(profile).forEach(property => {
       result.push(`${property} = ${profile[property]}`)
     });
