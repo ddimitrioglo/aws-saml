@@ -18,15 +18,16 @@ Inspired by [AWS CLI Access Using SAML 2.0][1] article.
 
 `aws-saml configure`
 
-> Or manually edit `~/.aws/.saml.json` which will look like
+> Or manually add/edit `~/.aws-saml/config.json` which should look like
 
 ```text
 {
-  "profile": "saml",
-  "username": "myusername", // or email: myusername@mycorp.com
-  "directoryDomain": "https://directory.mycorp.com",
-  "accountMapping": {
-    "888999888999": "Account A",
+  "profile": "saml",                    # AWS named profile [Required, default: "saml"]
+  "username": "myusername",             # SSO username (login or email) [Required]
+  "password": false,                    # SSO password (encrypted with SSH keys) [Optional, default: false]
+  "directoryDomain": "https://directory.mycorp.com", # Identity provider (aka IdP) [Required] 
+  "aliases": {                          # AWS accounts aliases [Optional, default: {}]
+    "888999888999": "workAccount",
     ...
   }
 }
@@ -35,7 +36,7 @@ Inspired by [AWS CLI Access Using SAML 2.0][1] article.
 ### Usage
 
 * Run `aws-saml login`
-* Enter a password
+* Enter a username & password
 * Chose an account
 * Use your AWS CLI commands by adding `--profile saml`
 
@@ -43,7 +44,7 @@ Inspired by [AWS CLI Access Using SAML 2.0][1] article.
 
 ### Help
 
-`aws-saml --help`
+To get familiar with all the features, just use `aws-saml --help`
 
 ### Improvements
 

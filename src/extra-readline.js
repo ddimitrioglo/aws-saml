@@ -1,6 +1,5 @@
 'use strict';
 
-const os = require('os');
 const ReadLine = require('readline');
 
 const secretSign = '*';
@@ -24,7 +23,7 @@ rl._writeToOutput = string => {
   if (rl.output !== null && rl.output !== undefined) {
     let result = string;
 
-    if (rl.secretQuery) {
+    if (rl.secretQuery && string.charCodeAt(0) !== 13) {
       let regExp = new RegExp(`^(${rl.secretQuery})(.*)$`);
 
       result = regExp.test(string)
@@ -37,16 +36,25 @@ rl._writeToOutput = string => {
 };
 
 /**
- * Add secret question method
+ * Extra question method
  * @param {String} query
- * @param {Function} cb
+ * @param {Boolean} isSecret
+ * @return {Promise}
  */
-rl.constructor.prototype.secretQuestion = (query, cb) => {
-  rl.secretQuery = query;
-  rl.question(query, answer => {
-    rl.secretQuery = null;
-    rl.output.write(os.EOL);
-    cb(answer);
+rl.constructor.prototype.promiseQuestion = (query, isSecret = false) => {
+  if (isSecret) {
+    // Escape the regular expression special characters
+    rl.secretQuery = query.replace(/[\^$\\.*+?()[\]{}|]/g, '\\$&');
+  }
+
+  return new Promise(resolve => {
+    rl.question(query, (answer) => {
+      if (isSecret) {
+        rl.secretQuery = null;
+      }
+
+      return resolve(answer.trim());
+    });
   });
 };
 
