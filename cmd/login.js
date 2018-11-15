@@ -90,7 +90,11 @@ class LoginCommand extends Command {
 
     return rlex
       .promiseQuestion('Choose account to login: ')
-      .then(selected => Promise.resolve(accounts[selected - 1]));
+      .then(number => {
+        const selected = accounts[number - 1];
+
+        return selected ? Promise.resolve(selected) : Promise.reject('OMG! You broke everything! 😱');
+      });
   }
 
   /**
