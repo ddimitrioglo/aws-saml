@@ -3,7 +3,7 @@
 const url = require('url');
 const sax = require('sax');
 const AWS = require('aws-sdk');
-const request = require('request').defaults({ jar: true });
+const request = require('request').defaults({ jar: false });
 
 class Saml {
   /**
@@ -12,6 +12,7 @@ class Saml {
   constructor(idpDomain) {
     this._domain = idpDomain;
     this._parser = sax.parser(false, { lowercase: true });
+    this._cookie = request.jar();
   }
 
   /**
@@ -24,7 +25,7 @@ class Saml {
     let idpUrl = url.resolve(this._domain, 'adfs/ls/IdpInitiatedSignOn.aspx?loginToRp=urn:amazon:webservices');
 
     return new Promise((resolve, reject) => {
-      request.get({ url: idpUrl, rejectUnauthorized: false }, (err, res, body) => {
+      request.get({ url: idpUrl, rejectUnauthorized: false, jar: this._cookie }, (err, res, body) => {
         if (err) {
           return reject(err);
         }
@@ -56,6 +57,7 @@ class Saml {
         followAllRedirects: true,
         rejectUnauthorized: false,
         url: url.resolve(this._domain, loginPath),
+        jar: this._cookie,
         form: {
           UserName: emailRegExp.test(username) ? username : `CORP\\${username}`,
           Password: password, Kmsi: true,
