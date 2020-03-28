@@ -1,8 +1,10 @@
 # aws-saml
 
 Node.js CLI package which allows you to get AWS temporary credentials using a SAML IDP. 
-
 Inspired by [AWS CLI Access Using SAML 2.0][1] article.
+
+> If you have AWS-SAML configured and you can provide me a minimal access to it please open an issue to get in touch.
+> Having such access would help me to continue improving this package and test if it's not broken. Thanks. 
 
 ### Prerequisites
 
@@ -45,6 +47,11 @@ Inspired by [AWS CLI Access Using SAML 2.0][1] article.
 ### Help
 
 To get familiar with all the features, just use `aws-saml --help`
+
+### Todo
+
+* Get rid of `request` as it was deprecated
+* Try `AWS.util.iniLoader.resolvedProfiles` (issue #13)
 
 ### Improvements
 
